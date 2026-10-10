@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#281522">
+<title>Film Sürprizi — Bu akşam senin için…</title>
+<style>
+:root{--bg:#170f18;--panel:#241724;--rose:#e9a8ba;--cream:#fff1e8;--muted:#c8b3c2;--gold:#e9c88b;--line:#56384b}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#4a263e 0%,#241522 40%,#120d15 100%);color:var(--cream);font-family:ui-serif,Georgia,"Times New Roman",serif;display:flex;justify-content:center;align-items:center;padding:24px}
+button,input,textarea{font:inherit}button{cursor:pointer}.shell{width:min(100%,720px)}.top{text-align:center;margin-bottom:22px}.mark{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}h1{font-size:clamp(2.4rem,8vw,4.5rem);font-weight:400;line-height:1.03;margin:12px 0 10px;letter-spacing:-.04em}.subtitle{font-family:system-ui,sans-serif;color:var(--muted);font-size:14px;line-height:1.6}.panel{background:linear-gradient(145deg,rgba(57,34,53,.94),rgba(31,20,32,.96));border:1px solid var(--line);border-radius:24px;padding:clamp(20px,5vw,36px);box-shadow:0 25px 80px #0005}.eyebrow{color:var(--rose);font:600 11px system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px}label{display:block;font:600 12px system-ui,sans-serif;letter-spacing:.06em;color:#f1dce5;margin:18px 0 8px}input,textarea{width:100%;border:1px solid #704b61;border-radius:12px;background:#170f18;color:var(--cream);padding:14px 15px;outline:none}input:focus,textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px #e9a8ba22}textarea{min-height:82px;resize:vertical}.btn{border:0;border-radius:999px;padding:14px 20px;font:600 13px system-ui,sans-serif;letter-spacing:.03em;transition:transform .2s,filter .2s}.btn:hover{transform:translateY(-1px);filter:brightness(1.06)}.primary{background:linear-gradient(110deg,#e7a1b8,#f2d2c1);color:#2a1422}.secondary{background:transparent;border:1px solid #8d647c;color:var(--cream)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.actions .btn{flex:1;min-width:145px}.note{font:12px/1.6 system-ui,sans-serif;color:var(--muted);margin-top:15px}.hidden{display:none!important}.reveal-wrap{text-align:center;padding:12px 0 4px}.heart{font-size:28px;color:var(--rose);animation:pulse 1.8s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.13);opacity:.75}}.reveal-title{font-size:clamp(2rem,7vw,3.8rem);font-weight:400;margin:18px 0;line-height:1.1}.film{font-size:clamp(2.1rem,7vw,4rem);color:var(--gold);opacity:0;transform:translateY(15px) scale(.97);transition:opacity .8s,transform .8s;overflow-wrap:anywhere}.film.shown{opacity:1;transform:translateY(0) scale(1)}.message{font-size:17px;line-height:1.7;color:#f2dce5;white-space:pre-wrap}.divider{width:70px;height:1px;background:var(--gold);margin:24px auto}.footer{text-align:center;color:#9b8294;font:11px system-ui,sans-serif;margin-top:20px}.archive{margin-top:22px;border-top:1px solid var(--line);padding-top:16px}.archive h2{font-size:17px;font-weight:400}.archive-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #503448;font:13px system-ui,sans-serif}.archive-item span{overflow-wrap:anywhere}.tiny{font:11px system-ui,sans-serif;color:var(--muted)}.toast{min-height:18px;color:var(--gold);font:12px system-ui,sans-serif;margin-top:10px}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div class="mark">✦ küçük bir sürpriz ✦</div>
+    <h1>Film Sürprizi</h1>
+    <div class="subtitle">Bazen güzel bir akşam, küçük bir merakla başlar.</div>
+  </header>
+
+  <section id="creator" class="panel">
+    <div class="eyebrow">Kendi sürprizini hazırla</div>
+    <p class="subtitle">Filmi seç, mesajını yaz ve paylaşılabilir bağlantını oluştur.</p>
+    <form id="createForm">
+      <label for="movie">Filmin adı</label>
+      <input id="movie" maxlength="120" required placeholder="Örn. Zootopia 2" autocomplete="off">
+      <label for="message">Açılış mesajı</label>
+      <textarea id="message" maxlength="500">Bu akşam senin için bir film seçtim. Hazırsan sürprizi aç…</textarea>
+      <div class="actions"><button class="btn primary" type="submit">Sürprizi hazırla</button></div>
+    </form>
+    <div id="shareArea" class="hidden">
+      <div class="divider"></div>
+      <div class="eyebrow">Bağlantın hazır</div>
+      <p class="subtitle">Bu bağlantıyı arkadaşına gönder. Film adı, sürpriz açılana kadar sayfada gösterilmez.</p>
+      <input id="shareLink" readonly aria-label="Paylaşım bağlantısı">
+      <div class="actions">
+        <button id="copyBtn" class="btn primary" type="button">Bağlantıyı kopyala</button>
+        <button id="previewBtn" class="btn secondary" type="button">Önizle</button>
+      </div>
+      <div id="copyStatus" class="toast" role="status"></div>
+    </div>
+    <div id="archive" class="archive hidden">
+      <h2>Bu cihazdaki son sürprizler</h2>
+      <div id="archiveList"></div>
+      <p class="tiny">Bu liste yalnızca bu tarayıcıda saklanır; başka cihazlarla senkronize olmaz.</p>
+    </div>
+  </section>
+
+  <section id="surprise" class="panel hidden">
+    <div class="reveal-wrap">
+      <div class="heart">♡</div>
+      <div class="eyebrow">Sana özel bir seçim</div>
+      <h2 class="reveal-title">Bu akşamın sürprizi…</h2>
+      <p id="revealMessage" class="message"></p>
+      <div class="divider"></div>
+      <div id="filmTitle" class="film" aria-live="polite"></div>
+      <div id="revealControls" class="actions">
+        <button id="revealBtn" class="btn primary" type="button">Sürprizi aç</button>
+      </div>
+      <p id="afterText" class="note hidden">Şimdi battaniyeleri ve atıştırmalıkları hazırlama zamanı.</p>
+      <div class="actions"><button id="backBtn" class="btn secondary" type="button">Kendi sürprizini oluştur</button></div>
+    </div>
+  </section>
+  <div class="footer">Film Sürprizi · küçük anlar, güzel hikâyeler</div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const enc = obj => btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+const dec = str => JSON.parse(decodeURIComponent(escape(atob(str))));
+function getBase(){return location.href.split('#')[0];}
+function showCreator(){ $('creator').classList.remove('hidden'); $('surprise').classList.add('hidden'); }
+function showSurprise(data){
+  $('creator').classList.add('hidden'); $('surprise').classList.remove('hidden');
+  $('revealMessage').textContent=data.message || 'Bu akşam senin için bir film seçtim.';
+  $('filmTitle').textContent=data.movie;
+  $('filmTitle').classList.remove('shown');
+  $('revealControls').classList.remove('hidden'); $('afterText').classList.add('hidden');
+}
+function readArchive(){
+ try{return JSON.parse(localStorage.getItem('filmSurpriziArchive')||'[]')}catch{return []}
+}
+function saveArchive(data, url){
+ let arr=readArchive(); arr.unshift({movie:data.movie,message:data.message,url,created:new Date().toLocaleDateString('tr-TR')});
+ arr=arr.slice(0,5); localStorage.setItem('filmSurpriziArchive',JSON.stringify(arr)); renderArchive();
+}
+function renderArchive(){
+ const arr=readArchive(); const box=$('archive'), list=$('archiveList');
+ if(!arr.length){box.classList.add('hidden');return}
+ box.classList.remove('hidden'); list.replaceChildren();
+ arr.forEach(item=>{
+  const row=document.createElement('div');row.className='archive-item';
+  const label=document.createElement('span');label.textContent=item.movie+' · '+item.created;
+  const btn=document.createElement('button');btn.className='btn secondary';btn.textContent='Bağlantı';
+  btn.style.padding='8px 12px';btn.style.flex='0 0 auto';
+  btn.addEventListener('click',()=>{ $('shareLink').value=item.url; $('shareArea').classList.remove('hidden');window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});});
+  row.append(label,btn);list.append(row);
+ });
+}
+$('createForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const data={movie:$('movie').value.trim(),message:$('message').value.trim()};
+ if(!data.movie)return;
+ const url=getBase()+'#s='+enc(data);
+ $('shareLink').value=url;$('shareArea').classList.remove('hidden');$('copyStatus').textContent='';
+ saveArchive(data,url);
+});
+$('copyBtn').addEventListener('click',async()=>{
+ const text=$('shareLink').value;
+ try{await navigator.clipboard.writeText(text);$('copyStatus').textContent='Bağlantı kopyalandı.'}
+ catch{$('shareLink').select();$('copyStatus').textContent='Bağlantıyı seçip kopyalayabilirsin.'}
+});
+$('previewBtn').addEventListener('click',()=>{
+ try{const data=dec($('shareLink').value.split('#s=')[1]);history.pushState(null,'',$('shareLink').value.split('#')[0]+'#preview');showSurprise(data)}
+ catch{$('copyStatus').textContent='Önizleme oluşturulamadı.'}
+});
+$('revealBtn').addEventListener('click',()=>{
+ $('filmTitle').classList.add('shown');$('revealControls').classList.add('hidden');$('afterText').classList.remove('hidden');
+});
+$('backBtn').addEventListener('click',()=>{history.pushState(null,'',getBase());showCreator();renderArchive();});
+function init(){
+ const match=location.hash.match(/^#s=(.+)$/);
+ if(match){try{showSurprise(dec(match[1]));return}catch{}}
+ showCreator();renderArchive();
+}
+window.addEventListener('hashchange',init);init();
+</script>
+</body>
+</html>
