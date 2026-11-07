@@ -212,8 +212,14 @@ footer{margin-top:auto;padding-top:1rem;text-align:center;font-style:italic;font
   }
 
   /* ---- Sürprizi açma animasyonu ---- */
+  function remember(d){
+    var a=load();
+    if(a.some(function(x){return x.f===d.film&&(x.m||'')===(d.msg||'')}))return;
+    a.unshift({f:d.film,m:d.msg||'',t:Date.now(),r:1});save(a);
+  }
   function reveal(){
     if(!current)return;
+    if(!preview)remember(current);
     var mv=$('movie');mv.textContent='';var i=0;
     current.film.split(/\s+/).forEach(function(word){
       var w=document.createElement('span');w.className='w';
@@ -245,7 +251,7 @@ footer{margin-top:auto;padding-top:1rem;text-align:center;font-style:italic;font
     a.forEach(function(it,idx){
       var li=document.createElement('li'),b=document.createElement('b'),sm=document.createElement('small'),row=document.createElement('div');
       b.textContent=it.f;
-      sm.textContent=new Date(it.t).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+      sm.textContent=new Date(it.t).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})+(it.r?' \u00b7 Sana gelen':'');
       row.className='row';
       function btn(label,fn){var x=document.createElement('button');x.type='button';x.className='btn sm ghost';x.textContent=label;x.setAttribute('aria-label',label+': '+it.f);x.addEventListener('click',fn);row.appendChild(x)}
       btn('Kopyala',function(){copy(makeLink(it.f,it.m))});
