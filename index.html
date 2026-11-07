@@ -36,6 +36,7 @@ input::placeholder,textarea::placeholder{color:#9a9a85}
 .btn.ghost:hover{background:rgba(111,115,82,.12)}
 .btn.sm{padding:.5rem .9rem;font-size:.72rem;letter-spacing:.1em}
 .btn.block{width:100%;margin-top:1.1rem}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .center{text-align:center}
 .row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
 .row .btn{flex:1 1 auto}
@@ -47,6 +48,9 @@ input::placeholder,textarea::placeholder{color:#9a9a85}
 .arch b{font-weight:400;font-size:1.05rem;overflow-wrap:anywhere}
 .arch small{display:block;color:#7b7b66}
 .arch .row{margin-top:.4rem}
+.arch-wrap{max-height:22rem;overflow-y:auto;padding-right:.2rem}
+details.old{margin-top:1rem;border-top:1px solid rgba(111,115,82,.25);padding-top:.8rem}
+details.old summary{cursor:pointer;text-align:center;letter-spacing:.12em;font-size:.8rem;text-transform:uppercase;color:var(--sage)}
 .empty{text-align:center;color:#7b7b66;margin:0}
 .reveal-label{text-align:center;letter-spacing:.2em;font-size:.8rem;text-transform:uppercase;color:var(--sage);margin:0 0 .6rem}
 .movie{margin:.2rem 0 1rem;outline:0;overflow-wrap:anywhere}
@@ -73,22 +77,19 @@ footer{margin-top:auto;padding-top:1rem;text-align:center;font-style:italic;font
   <!-- Sürprizi hazırlayan kişinin ekranı -->
   <section id="viewCreate" hidden>
     <div class="panel">
-      <h1>Bir sürpriz hazırla</h1>
-      <p class="lead">Film adı gizli kalır; karşındaki kişi düğmeye basınca ortaya çıkar.</p>
       <form id="form" novalidate>
-        <label for="film">Film adı</label>
-        <input id="film" maxlength="120" autocomplete="off" placeholder="Örn. Amélie">
+        <label for="film" class="sr">Film adı</label>
+        <input id="film" maxlength="120" autocomplete="off" placeholder="Film adı">
         <p class="err" id="err" role="alert"></p>
-        <label for="mesaj">Kişisel mesaj <span style="opacity:.7">(isteğe bağlı)</span></label>
-        <textarea id="mesaj" maxlength="500" placeholder="Bu akşam senin için küçük bir sürprizim var..."></textarea>
+        <label for="mesaj" class="sr">Mesaj</label>
+        <textarea id="mesaj" maxlength="500" placeholder="Mesaj (isteğe bağlı)"></textarea>
         <button class="btn block" type="submit">Sürprizi oluştur</button>
       </form>
     </div>
 
     <div class="panel fade" id="result" hidden>
-      <h3>Bağlantın hazır</h3>
-      <label for="link" style="margin-top:0">Paylaşım bağlantısı</label>
-      <input id="link" readonly>
+      <h3>Hazır</h3>
+      <input id="link" readonly aria-label="Paylaşım bağlantısı">
       <div class="row">
         <button class="btn sm" type="button" id="copyBtn">Kopyala</button>
         <a class="btn sm ghost" id="waBtn" target="_blank" rel="noopener">WhatsApp</a>
@@ -99,8 +100,19 @@ footer{margin-top:auto;padding-top:1rem;text-align:center;font-style:italic;font
 
     <div class="panel">
       <h3>Son sürprizler</h3>
-      <ul class="arch" id="archive"></ul>
-      <p class="empty" id="archEmpty">Henüz sürpriz yok.</p>
+      <div class="arch-wrap"><ul class="arch" id="archive"></ul></div>
+      <p class="empty" id="archEmpty">Henüz yok.</p>
+      <details class="old" id="oldBox">
+        <summary>Eski filmleri ekle</summary>
+        <form id="oldForm" novalidate>
+          <label for="oldFilms">Filmler <span style="opacity:.7">(satır başına bir)</span></label>
+          <textarea id="oldFilms" maxlength="3000" placeholder="Amélie&#10;Before Sunrise&#10;Lost in Translation"></textarea>
+          <label for="oldDate">Tarih <span style="opacity:.7">(isteğe bağlı)</span></label>
+          <input id="oldDate" type="date">
+          <p class="err" id="oldErr" role="alert"></p>
+          <button class="btn sm block" type="submit">Arşive ekle</button>
+        </form>
+      </details>
     </div>
   </section>
 
@@ -111,14 +123,12 @@ footer{margin-top:auto;padding-top:1rem;text-align:center;font-style:italic;font
         <h2>Sana özel<br>bir film seçtim...</h2>
         <p class="msg" id="msg" hidden></p>
         <div class="orn" aria-hidden="true"><span>✦</span></div>
-        <p class="hint">Sürprizi aç ve hangi filmi izleyeceğimizi öğren.</p>
         <button class="btn" type="button" id="openBtn">Sürprizi aç</button>
       </div>
       <div id="reveal" hidden>
-        <p class="reveal-label">Bu akşamın filmi</p>
+        <p class="reveal-label">Film</p>
         <h2 class="movie" id="movie" tabindex="-1" aria-live="polite"></h2>
         <div class="orn" aria-hidden="true"><span>✦</span></div>
-        <p class="hint fade">İyi seyirler.</p>
       </div>
       <div class="row" style="justify-content:center">
         <button class="btn sm ghost" type="button" id="backBtn" hidden>← Düzenlemeye dön</button>
@@ -135,7 +145,7 @@ footer{margin-top:auto;padding-top:1rem;text-align:center;font-style:italic;font
 (function(){
   'use strict';
   var $=function(id){return document.getElementById(id)};
-  var KEY='filmSurprizi.arsiv', MAX=10;
+  var KEY='filmSurprizi.arsiv', MAX=200;
   var current=null, lastLink='', preview=false;
 
   /* ---- Kodlama: #s= Base64 (UTF-8 + JSON), URL güvenli ---- */
@@ -245,15 +255,29 @@ footer{margin-top:auto;padding-top:1rem;text-align:center;font-style:italic;font
     });
   }
 
+  /* ---- Eski filmleri arşive ekleme ---- */
+  $('oldForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var lines=$('oldFilms').value.split(/\r?\n/).map(function(x){return x.trim().slice(0,120)}).filter(Boolean);
+    if(!lines.length){$('oldErr').textContent='Film adı gerekli.';return}
+    var d=$('oldDate').value,base=d?new Date(d+'T12:00:00').getTime():Date.now();
+    var a=load();
+    lines.forEach(function(f,i){a.push({f:f,m:'',t:base-i})});
+    a.sort(function(x,y){return y.t-x.t});
+    save(a);renderArchive();
+    $('oldErr').textContent='';$('oldForm').reset();$('oldBox').open=false;
+    toast(lines.length+' film arşive eklendi');
+  });
+
   /* ---- Olaylar ---- */
   $('form').addEventListener('submit',function(e){
     e.preventDefault();
     var film=$('film').value.trim(),msg=$('mesaj').value.trim();
-    if(!film){$('err').textContent='Lütfen bir film adı yaz.';$('film').focus();return}
+    if(!film){$('err').textContent='Film adı gerekli.';$('film').focus();return}
     $('err').textContent='';
     lastLink=makeLink(film,msg);
     $('link').value=lastLink;
-    $('waBtn').href='https://wa.me/?text='+encodeURIComponent('Sana özel bir film seçtim. Sürprizi açmak için: '+lastLink);
+    $('waBtn').href='https://wa.me/?text='+encodeURIComponent('Sana özel bir film seçtim: '+lastLink);
     $('result').hidden=false;
     var a=load();a.unshift({f:film,m:msg,t:Date.now()});save(a);renderArchive();
     $('result').scrollIntoView({behavior:'smooth',block:'center'});
